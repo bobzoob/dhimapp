@@ -6,13 +6,13 @@ const currentYear = new Date().getFullYear();
 const licenseMarkdown = `
 # License & Terms of Use
 
-Copyright (c) ${currentYear} geocodes
+Copyright (c) ${currentYear} dhimapp
 
 Permission is granted as [CC BY-SA 4.0](https://de.wikipedia.org/wiki/Creative_Commons).
 You can copy and use this software free of charge. You are allowed to copy, share, modify, and even commercially use this work. You must always give proper attribution to the original creator and release any modified versions under the same [CC BY-SA 4.0](https://de.wikipedia.org/wiki/Creative_Commons) license.
 
 ## Citation
-Inka Jurk: *geocodes. DH Framework designed to visualize historical datasets in a multilayered and interactive map*, Johannes-Gutenberg-University Mainz 2026, licensed under CC BY-SA 4.0. Source: [https://geo-codes.vercel.app/](https://geo-codes.vercel.app/) 
+Jurk, Inka: *dhimapp. DH Framework designed to visualize historical datasets in a multilayered and interactive map*, Johannes-Gutenberg-University Mainz 2026, licensed under CC BY-SA 4.0. Source: [https://dhimapp.vercel.app/](https://dhimapp.vercel.app/) 
 
 You must specify if original source was modified.
 
