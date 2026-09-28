@@ -24,6 +24,10 @@ export interface HoverState {
   longitude: number;
 }
 
+/**
+ * This modul handels all listeners
+ */
+
 export function useMapInteraction() {
   const { state, dispatch } = useAppState();
 
@@ -40,8 +44,8 @@ export function useMapInteraction() {
 
   /**
    * APP SELECTION LISTENER
-   * Listens for custom 'app:select-feature' events.
-   * Used when clicking the "eye" in the Table or an item in a HubList.
+   * Listens for custom app:select-feature events.
+   * Used when clicking eye symbol in a table or an item in a HubList.
    */
   useEffect(() => {
     const handleAppSelect = (e: any) => {
@@ -94,6 +98,8 @@ export function useMapInteraction() {
   /**
    * CLICK HANDLER
    */
+  // we wrapp this function in useCallback
+  // to prevent listener from being recreated on every render
   const onMapClick = useCallback(
     (event: MapLayerMouseEvent) => {
       const feature = event.features?.[0];
@@ -130,13 +136,13 @@ export function useMapInteraction() {
         const allFeatures = state.processedData[layerId]?.features || [];
 
         const groupedFeatures = allFeatures.filter((f: any) => {
-          // 1. Use the advanced BaseFilter logic if provided
+          // we use the advanced BaseFilter logic if provided
           if (groupingFilter) {
-            // Pass the clicked `feature` as the referenceFeature!
+            // and pass the clicked feature as the referenceFeature
             return evaluateBaseFilter(f, groupingFilter, feature);
           }
 
-          // 2. Fallback to the old groupingField logic
+          // or Fallback to groupingField logic
           let rawGroupValue = feature.properties[groupingField!];
           if (
             typeof rawGroupValue === "string" &&

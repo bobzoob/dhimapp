@@ -7,7 +7,7 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useMemo } from "react";
 
 const markdownContent = `
-# geocodes | Documentation
+# dhimapp | Documentation
 
 ## ⭐ Introduction
 
@@ -52,13 +52,13 @@ To set up and run this project on your own machine, follow these steps:
 1.  **Clone the repository:**
 
     \`\`\`bash
-    git clone https://github.com/bobzoob/geo-codes.git
+    git clone https://github.com/bobzoob/dhimapp.git
     \`\`\`
 
 2.  **Navigate into the project directory:**
 
     \`\`\`bash
-    cd geo-codes
+    cd dhimapp
     \`\`\`
 
 3.  **Install the dependencies:**
@@ -625,7 +625,7 @@ function DocumentationView() {
             }}
           >
             <Typography variant="subtitle2" sx={{ mb: 2 }}>
-              geocodes | Documentation
+              dhimapp | Documentation
             </Typography>
 
             {headings.map(({ level, text, slug }) => (

@@ -75,7 +75,7 @@ function Header() {
             src="assets/logo.png"
             alt="Project Logo"
             sx={{
-              height: "40px",
+              height: "55px",
               width: "auto",
               objectFit: "contain",
             }}

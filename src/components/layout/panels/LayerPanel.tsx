@@ -65,12 +65,12 @@ function LayerPanel() {
       {/* SCROLLABLE CONTENT */}
       <Box sx={{ flexGrow: 1, overflowY: "auto", px: 2, pb: 2 }}>
         {Object.entries(groupedLayers).map(([groupName, layersInGroup]) => {
-          // The master switch is ON only if ALL layers in the group are visible
+          // master switch is ON only if ALL layers in the group are visible
           const isGroupVisible = layersInGroup.every((l) => l.visible);
 
           return (
             <Box key={groupName} sx={{ mb: 3 }}>
-              {/* GROUP HEADER (Only show if it's an actual group) */}
+              {/* GROUP HEADER */}
               {groupName !== "Ungrouped" && (
                 <Box
                   sx={{

@@ -33,7 +33,7 @@ export function useActiveFilters() {
     });
   }
 
-  // Iterate through ALL layers
+  // we iterate through ALL layers
   layerConfig.forEach((layer) => {
     const activeForThisLayer: ActiveFilterItem[] = [];
 
@@ -44,7 +44,7 @@ export function useActiveFilters() {
 
         if (!module || val === undefined) return;
 
-        // Cwe checkif value is different from default
+        // we checkif value is different from default
         const isDefault =
           JSON.stringify(val) === JSON.stringify(module.defaultValue);
 

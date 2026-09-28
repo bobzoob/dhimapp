@@ -1,4 +1,4 @@
-# 🌍 GEOCODES Multilayer-Interactive-Map
+# 🌍 dhimapp Multilayer-Interactive-Map
 
 # 🔗 Digital Humanities Visualization Framework
 
@@ -48,13 +48,13 @@ To set up and run this project on your own machine, follow these steps:
 1.  **Clone the repository:**
 
     ```bash
-    git clone https://github.com/bobzoob/geo-codes.git
+    git clone https://github.com/bobzoob/dhimapp.git
     ```
 
 2.  **Navigate into the project directory:**
 
     ```bash
-    cd geo-codes
+    cd dhimapp
     ```
 
 3.  **Install the dependencies:**

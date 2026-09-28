@@ -36,6 +36,8 @@ import { useAppState } from "../state/appContext";
 import { availableStories } from "../config/storyConfig"; // story mode
 
 /**
+ * This is the UI layer for the Timeline
+ *
  * TIMERANGE is retrieved from the global application state
  */
 interface TimelineControlProps {

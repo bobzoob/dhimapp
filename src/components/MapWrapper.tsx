@@ -15,6 +15,11 @@ import { layerRegistry } from "../layers/layerRegistry";
 import { extractGenericPopupData } from "../utils/popupUtils";
 import { Paper, Typography } from "@mui/material";
 
+/**
+ * Consumer of useMapInteraction(click listener)
+ * and canvas drawer for MapLibre
+ */
+
 interface MapWrapperProps {
   children: ReactNode;
 }
@@ -59,7 +64,7 @@ function MapWrapper({ children }: MapWrapperProps) {
     // resolve correct dictionary for hovered layer
     const dictionaryId = layer.dictionaryId || sourceConfig?.dictionaryId;
 
-    // console.log("DEBUG: Tooltip Lookup", {
+    // console.log("DEBUG: tooltip lookup", {
     //   lookingFor: dictionaryId,
     //   availableDictionaries: Object.keys(dictionaries),
     //   foundData: dictionaries[dictionaryId || ""],
