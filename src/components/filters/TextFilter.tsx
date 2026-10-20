@@ -43,7 +43,7 @@ function TextFilter({ value, onChange, label }: FilterComponentProps) {
               placeholder={
                 currentTerms.length === 0
                   ? "Type and press Enter..."
-                  : "Add another term..."
+                  : "Add another..."
               }
             />
           )}

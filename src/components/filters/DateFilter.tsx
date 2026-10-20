@@ -30,9 +30,7 @@ function DateFilter({ value, onChange, label }: FilterComponentProps) {
   return (
     <Paper variant="outlined" sx={{ padding: 2, bgcolor: "transparent" }}>
       <Stack spacing={2}>
-        <Typography variant="subtitle2" color="primary">
-          {label || "Date Range"}
-        </Typography>
+        <Typography variant="subtitle2">{label || "Date Range"}</Typography>
 
         <Box sx={{ display: "flex", gap: 1 }}>
           <TextField

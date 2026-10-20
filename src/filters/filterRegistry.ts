@@ -83,7 +83,7 @@ export const filterRegistry: Record<string, FilterModule> = {
   // ENTITIE FILTER (only entities | assembles features with AND - OR logic)
   entitySearch: {
     id: "entitySearch",
-    label: "Entity Filter",
+    label: "Entity",
     defaultValue: { terms: [], mode: "all" },
     component: EntityFilter,
     formatValue: (val) =>

@@ -104,12 +104,14 @@ function PlaceFilter({
           renderInput={(inputParams) => (
             <TextField
               {...inputParams}
-              label="Place..."
+              label="Place"
               variant="outlined"
               size="small"
               fullWidth
               placeholder={
-                current.terms.length === 0 ? "Search places..." : "Add place..."
+                current.terms.length === 0
+                  ? "Select or type..."
+                  : "Add another..."
               }
             />
           )}
