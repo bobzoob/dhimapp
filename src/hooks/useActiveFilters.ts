@@ -7,6 +7,9 @@ export interface ActiveFilterItem {
   value: string;
   moduleId: string;
   layerId?: string;
+  term?: string;
+  allTerms?: string[];
+  isObjectFilter?: boolean;
 }
 
 export interface LayerFilterGroup {
@@ -49,17 +52,54 @@ export function useActiveFilters() {
           JSON.stringify(val) === JSON.stringify(module.defaultValue);
 
         if (!isDefault) {
-          activeForThisLayer.push({
-            id: `${layer.id}-${config.moduleId}`,
-            label: config.params?.activeLabel || module.label,
-            value: module.formatValue(val, config.params),
-            moduleId: config.moduleId,
-            layerId: layer.id,
-          });
+          const baseLabel = config.params?.activeLabel || module.label;
+
+          // object filters with { terms, mode } (entitySearch, placeFilter)
+          if (val && typeof val === "object" && Array.isArray(val.terms)) {
+            const terms: string[] = val.terms;
+            const modeSuffix = val.mode === "any" ? " (Any)" : "";
+
+            terms.forEach((term, idx) => {
+              activeForThisLayer.push({
+                id: `${layer.id}-${config.moduleId}-${idx}-${term}`,
+                label: `${baseLabel}${modeSuffix}`,
+                value: module.formatValue(term, config.params),
+                moduleId: config.moduleId,
+                layerId: layer.id,
+                term: term,
+                allTerms: terms,
+                isObjectFilter: true,
+              });
+            });
+          }
+          // direct array filters (plainText, sender, recipient)
+          else if (Array.isArray(val)) {
+            val.forEach((term: string, idx: number) => {
+              activeForThisLayer.push({
+                id: `${layer.id}-${config.moduleId}-${idx}-${term}`,
+                label: baseLabel,
+                value: module.formatValue(term, config.params),
+                moduleId: config.moduleId,
+                layerId: layer.id,
+                term: term,
+                allTerms: val,
+                isObjectFilter: false,
+              });
+            });
+          }
+          // sStandard single filters (dateRange, toggles)
+          else {
+            activeForThisLayer.push({
+              id: `${layer.id}-${config.moduleId}`,
+              label: baseLabel,
+              value: module.formatValue(val, config.params),
+              moduleId: config.moduleId,
+              layerId: layer.id,
+            });
+          }
         }
       });
     }
-
     if (activeForThisLayer.length > 0) {
       layerGroups.push({
         layerId: layer.id,

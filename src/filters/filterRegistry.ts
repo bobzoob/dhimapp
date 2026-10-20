@@ -14,36 +14,43 @@ import ToggleFilter from "../components/filters/ToggleFilter";
  */
 
 export const filterRegistry: Record<string, FilterModule> = {
-  // TEXT SEARCH (all text fields, all entities)
+  // TEXT SEARCH (all text, all entities | stricly assembles features with AND logic)
   plainText: {
     id: "plainText",
     label: "Text Search",
-    defaultValue: "",
+    defaultValue: [], // change here to [] ?
     component: TextFilterUI,
     formatValue: (val) => `"${val}"`,
-    predicate: (feature, value, entities, mapping) => {
-      if (!value) return true;
-      const term = value.toLowerCase();
+    predicate: (feature, value: string[], entities, mapping) => {
+      // no search terms
+      if (!Array.isArray(value) || value.length === 0) return true;
+
       const props = feature.properties;
-
-      // text props
       const textFields = mapping.textSearch || [];
-      if (
-        textFields.some((f) =>
-          String(props[f] || "")
-            .toLowerCase()
-            .includes(term)
-        )
-      )
-        return true;
+      // const entityFields = mapping.entityRefs || [];
 
-      // mapped entities
-      const entityFields = mapping.entityRefs || [];
-      return entityFields.some((field) => {
-        const ids = Array.isArray(props[field]) ? props[field] : [props[field]];
-        return ids.some((id) =>
-          entities[id]?.name.toLowerCase().includes(term)
+      // AND - every term in hte array must match either text fields or entities
+      return value.every((rawTerm) => {
+        const term = rawTerm.toLowerCase().trim();
+        if (!term) return true;
+
+        const matchesText = textFields.some((f) =>
+          String(props[f] || "")
+            .toLowerCase() // all lower case
+            .includes(term)
         );
+        if (matchesText) return true;
+
+        // mapped entities
+        const entityFields = mapping.entityRefs || [];
+        return entityFields.some((field) => {
+          const ids = Array.isArray(props[field])
+            ? props[field]
+            : [props[field]];
+          return ids.some((id) =>
+            entities[id]?.name.toLowerCase().includes(term)
+          );
+        });
       });
     },
   },
@@ -73,16 +80,22 @@ export const filterRegistry: Record<string, FilterModule> = {
     },
   },
 
-  // ENTITIE FILTER (only entities)
+  // ENTITIE FILTER (only entities | assembles features with AND - OR logic)
   entitySearch: {
     id: "entitySearch",
     label: "Entity Filter",
-    defaultValue: "",
+    defaultValue: { terms: [], mode: "all" },
     component: EntityFilter,
-    formatValue: (val) => `"${val}"`,
+    formatValue: (val) =>
+      Array.isArray(val) ? val.map((v) => `"${v}"`).join(", ") : `"${val}"`,
     predicate: (feature, value, entities, mapping, _layer, params) => {
-      if (!value) return true;
-      const term = value.toLowerCase();
+      const terms: string[] = Array.isArray(value) ? value : value?.terms || [];
+      const mode =
+        value && typeof value === "object" && !Array.isArray(value)
+          ? value.mode
+          : "all";
+
+      if (terms.length === 0) return true;
 
       // if param.property is provided we search only that field
       // otherwise we search all fields
@@ -90,26 +103,36 @@ export const filterRegistry: Record<string, FilterModule> = {
         ? [params.property]
         : mapping.entityRefs || [];
 
-      return fieldsToSearch.some((field) => {
-        const ids = Array.isArray(feature.properties[field])
-          ? feature.properties[field]
-          : [feature.properties[field]];
-        return ids.some((id) =>
-          entities[id]?.name.toLowerCase().includes(term)
-        );
+      const testMethod = mode === "any" ? "some" : "every";
+
+      return terms[testMethod]((rawTerm: string) => {
+        const term = rawTerm.toLowerCase().trim();
+        if (!term) return true;
+
+        return fieldsToSearch.some((field) => {
+          const ids = Array.isArray(feature.properties[field])
+            ? feature.properties[field]
+            : [feature.properties[field]];
+          return ids.some((id) =>
+            entities[id]?.name.toLowerCase().includes(term)
+          );
+        });
       });
     },
   },
 
-  // ROLE-SPECIFIC FILTER (sender, recipiant, ..)
+  // ROLE-SPECIFIC FILTER (sender, recipiant, .. | stricly assembles features with OR logic)
   // if you want to use them,
   // your data must contain the keys
   sender: {
     id: "sender",
     label: "Sender",
-    defaultValue: "",
+    defaultValue: [],
     component: EntityFilter,
-    formatValue: (val) => `Sender: ${val}`,
+    formatValue: (val) =>
+      Array.isArray(val)
+        ? val.map((v) => `Sender: ${v}`).join(", ")
+        : `Sender: ${val}`,
     predicate: (f, v, e, m, l, p) =>
       filterRegistry.entitySearch.predicate(f, v, e, m, l, {
         ...p,
@@ -120,9 +143,12 @@ export const filterRegistry: Record<string, FilterModule> = {
   recipient: {
     id: "recipient",
     label: "Recipient",
-    defaultValue: "",
+    defaultValue: [],
     component: EntityFilter,
-    formatValue: (val) => `Recipient: ${val}`,
+    formatValue: (val) =>
+      Array.isArray(val)
+        ? val.map((v) => `Recipient: ${v}`).join(", ")
+        : `Recipient: ${val}`,
     predicate: (f, v, e, m, l, p) =>
       filterRegistry.entitySearch.predicate(f, v, e, m, l, {
         ...p,
@@ -130,52 +156,38 @@ export const filterRegistry: Record<string, FilterModule> = {
       }),
   },
 
-  // PLACE FILTER
-
+  // PLACE FILTER (objects | assembles features with AND - OR logic)
   placeFilter: {
     id: "placeFilter",
     label: "Places",
-    defaultValue: { searchTerm: "", onlyResolved: false },
+    defaultValue: { searchTerm: [], onlyResolved: false },
     component: PlaceFilterUI,
-    formatValue: (val) => {
-      const parts = [];
-      if (val.searchTerm) parts.push(`"${val.searchTerm}"`);
-      if (val.onlyResolved) parts.push("Resolved Only");
-      return parts.join(" + ");
-    },
+    formatValue: (val) =>
+      Array.isArray(val) ? val.map((v) => `"${v}"`).join(", ") : `"${val}"`,
     predicate: (feature, value, entities) => {
-      const { searchTerm, onlyResolved } = value;
+      const terms: string[] = value?.terms || [];
+      const mode = value?.mode || "all";
 
-      // if no filter is active, show everything
-      if (!searchTerm && !onlyResolved) return true;
+      if (terms.length === 0) return true;
 
-      const term = searchTerm.toLowerCase();
       const props = feature.properties;
-
-      // SPECIFIC RESTRICTION: Only check these two fields
       const fieldsToSearch = ["origin_id", "target_id"];
+      const testMethod = mode === "any" ? "some" : "every";
 
-      return fieldsToSearch.some((field) => {
-        const id = props[field];
-        if (!id) return false;
+      return terms[testMethod]((rawTerm: string) => {
+        const term = rawTerm.toLowerCase().trim();
+        if (!term) return true;
 
-        const entity = entities[id];
-
-        // ensure the entity exists and is a Place
-        if (!entity || entity.type !== "Place") return false;
-
-        // apply "Resolved Only" logic
-        // checks if the entity has a geonames_resolved ID in the dictionary
-        if (onlyResolved && !entity.authority?.geonames_resolved) {
-          return false;
-        }
-
-        // Apply "Search Term" logic
-        if (searchTerm && !entity.name.toLowerCase().includes(term)) {
-          return false;
-        }
-
-        return true;
+        return fieldsToSearch.some((field) => {
+          const id = props[field];
+          if (!id) return false;
+          const entity = entities[id];
+          return (
+            entity &&
+            entity.type === "Place" &&
+            entity.name.toLowerCase().includes(term)
+          );
+        });
       });
     },
   },

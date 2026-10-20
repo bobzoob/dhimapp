@@ -1,10 +1,23 @@
-import { Stack, TextField, Button, Paper, Autocomplete } from "@mui/material";
+import {
+  Stack,
+  TextField,
+  Button,
+  Paper,
+  Autocomplete,
+  Chip,
+  FormControlLabel,
+  Checkbox,
+  Box,
+  Typography,
+  ToggleButtonGroup,
+  ToggleButton,
+} from "@mui/material";
 import { useAppState } from "../../state/appContext";
 import type { FilterComponentProps } from "../../types/filter";
 
 interface PlaceFilterValue {
-  searchTerm: string;
-  onlyResolved: boolean;
+  terms: string[];
+  mode: "all" | "any";
 }
 
 function PlaceFilter({
@@ -17,13 +30,9 @@ function PlaceFilter({
   const { dictionaries, layerConfig, sources, processedData } = state;
 
   // defaults
-  const current = (value as PlaceFilterValue) || {
-    searchTerm: "",
-    onlyResolved: false,
-  };
-
-  const update = (updates: Partial<PlaceFilterValue>) => {
-    onChange({ ...current, ...updates });
+  const current: PlaceFilterValue = {
+    terms: Array.isArray(value?.terms) ? value.terms : [],
+    mode: value?.mode || "all",
   };
 
   // suggestions
@@ -36,11 +45,11 @@ function PlaceFilter({
     const dictionaryId = layer?.dictionaryId || source?.dictionaryId;
     const dictionary = dictionaryId ? dictionaries[dictionaryId] : {};
 
-    // Get the actual features for this layer from the reactive pipeline
+    // get the actual features for this layer from reactive pipeline
     const layerData = processedData[layerId];
     const features = layerData?.features || [];
 
-    // collect unique IDs from the specific fields
+    // collect unique IDs from specific fields
     const activePlaceIds = new Set<string>();
 
     features.forEach((f: any) => {
@@ -50,7 +59,7 @@ function PlaceFilter({
       if (target) activePlaceIds.add(String(target));
     });
 
-    // map those IDs to names using the dictionary
+    // we map those IDs to names using the dictionary
     const options = Array.from(activePlaceIds)
       .map((id) => dictionary[id]?.name)
       .filter(Boolean) //if an ID isnt in the dictionary we remove it
@@ -58,6 +67,20 @@ function PlaceFilter({
 
     uniqueOptions = Array.from(new Set(options));
   }
+
+  // now, thats duplicated logic from other filter classes
+  const handleTermsChange = (newTerms: string[]) => {
+    const cleaned = Array.from(
+      new Set(newTerms.map((t) => t.trim()).filter(Boolean))
+    );
+    onChange({ ...current, terms: cleaned });
+  };
+
+  const handleModeChange = (_: any, newMode: "all" | "any" | null) => {
+    if (newMode) {
+      onChange({ ...current, mode: newMode });
+    }
+  };
 
   return (
     <Paper variant="outlined" sx={{ padding: 2, bgcolor: "transparent" }}>
@@ -67,45 +90,68 @@ function PlaceFilter({
         </Typography> */}
 
         {/* SEARCH FIELD: autocomplete or standard TextField */}
-        {useSuggestions ? (
-          <Autocomplete
-            freeSolo
-            options={uniqueOptions}
-            value={current.searchTerm}
-            onChange={(_e, newValue) => update({ searchTerm: newValue || "" })}
-            onInputChange={(_e, newInputValue) =>
-              update({ searchTerm: newInputValue })
-            }
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Place..."
-                variant="outlined"
-                size="small"
-                fullWidth
-              />
-            )}
-          />
-        ) : (
-          <TextField
-            label="Search Place Name..."
-            variant="outlined"
-            size="small"
-            fullWidth
-            value={current.searchTerm}
-            onChange={(e) => update({ searchTerm: e.target.value })}
-          />
-        )}
+        <Autocomplete
+          multiple
+          freeSolo
+          options={useSuggestions ? uniqueOptions : []}
+          value={current.terms}
+          onChange={(_e, newValue) => handleTermsChange(newValue as string[])}
+          renderTags={(tagValue, getTagProps) =>
+            tagValue.map((option, index) => {
+              const { key, ...tagProps } = getTagProps({ index });
+              return (
+                <Chip key={key} label={option} size="small" {...tagProps} />
+              );
+            })
+          }
+          renderInput={(inputParams) => (
+            <TextField
+              {...inputParams}
+              label="Place..."
+              variant="outlined"
+              size="small"
+              fullWidth
+              placeholder={
+                current.terms.length === 0 ? "Search places..." : "Add place..."
+              }
+            />
+          )}
+        />
 
-        {/* CLEAR BUTTON */}
-        {(current.searchTerm || current.onlyResolved) && (
-          <Button
-            size="small"
-            variant="text"
-            onClick={() => onChange({ searchTerm: "", onlyResolved: false })}
+        {/* the toggle appears when > 1 place term */}
+        {current.terms.length > 1 && (
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              pt: 0.5,
+            }}
           >
-            Clear
-          </Button>
+            <Typography variant="caption" color="text.secondary">
+              Match:
+            </Typography>
+            <ToggleButtonGroup
+              size="small"
+              value={current.mode}
+              exclusive
+              onChange={handleModeChange}
+              sx={{ height: 26 }}
+            >
+              <ToggleButton
+                value="all"
+                sx={{ px: 1, py: 0, fontSize: "0.75rem" }}
+              >
+                ALL
+              </ToggleButton>
+              <ToggleButton
+                value="any"
+                sx={{ px: 1, py: 0, fontSize: "0.75rem" }}
+              >
+                ANY
+              </ToggleButton>
+            </ToggleButtonGroup>
+          </Box>
         )}
       </Stack>
     </Paper>

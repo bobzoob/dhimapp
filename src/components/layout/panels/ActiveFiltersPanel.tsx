@@ -16,7 +16,7 @@ import {
 } from "../../../hooks/useActiveFilters";
 
 export default function ActiveFiltersPanel() {
-  const { dispatch } = useAppState();
+  const { dispatch, state } = useAppState();
   const { globalFilters, layerGroups } = useActiveFilters();
   const isMobile = useMediaQuery((theme: Theme) =>
     theme.breakpoints.down("md")
@@ -26,6 +26,53 @@ export default function ActiveFiltersPanel() {
     isMobile
       ? dispatch({ type: "SET_ACTIVE_MOBILE_PANEL", payload: "none" })
       : dispatch({ type: "TOGGLE_ACTIVE_FILTERS_PANEL" });
+  };
+
+  const handleRemoveFilter = (filter: ActiveFilterItem) => {
+    if (!filter.layerId) return;
+
+    // if a specific term within an array we filter:
+    if (filter.term !== undefined && filter.allTerms) {
+      const remainingTerms = filter.allTerms.filter((t) => t !== filter.term);
+
+      if (remainingTerms.length === 0) {
+        // if no terms left we remove filter entirely
+        dispatch({
+          type: "REMOVE_FILTER",
+          payload: { layerId: filter.layerId, moduleId: filter.moduleId },
+        });
+      } else {
+        // if it was an object filter ({ terms, mode }) we preserve the mode
+        if (filter.isObjectFilter) {
+          const layer = state.layerConfig.find((l) => l.id === filter.layerId);
+          const currentVal = (layer?.filterValues || {})[filter.moduleId] || {};
+          dispatch({
+            type: "UPDATE_FILTER_VALUE",
+            payload: {
+              layerId: filter.layerId,
+              filterId: filter.moduleId,
+              value: { ...currentVal, terms: remainingTerms },
+            },
+          });
+        } else {
+          // direct array filter
+          dispatch({
+            type: "UPDATE_FILTER_VALUE",
+            payload: {
+              layerId: filter.layerId,
+              filterId: filter.moduleId,
+              value: remainingTerms,
+            },
+          });
+        }
+      }
+    } else {
+      // filter module removal (standart)
+      dispatch({
+        type: "REMOVE_FILTER",
+        payload: { layerId: filter.layerId, moduleId: filter.moduleId },
+      });
+    }
   };
 
   const renderFilterItem = (filter: ActiveFilterItem) => (
@@ -51,15 +98,7 @@ export default function ActiveFiltersPanel() {
           {filter.value}
         </Typography>
       </Box>
-      <IconButton
-        size="small"
-        onClick={() =>
-          dispatch({
-            type: "REMOVE_FILTER",
-            payload: { layerId: filter.layerId, moduleId: filter.moduleId },
-          })
-        }
-      >
+      <IconButton size="small" onClick={() => handleRemoveFilter(filter)}>
         <CloseIcon fontSize="small" />
       </IconButton>
     </Box>
