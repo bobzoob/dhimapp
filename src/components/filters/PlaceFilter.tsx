@@ -1,12 +1,9 @@
 import {
   Stack,
   TextField,
-  Button,
   Paper,
   Autocomplete,
   Chip,
-  FormControlLabel,
-  Checkbox,
   Box,
   Typography,
   ToggleButtonGroup,
