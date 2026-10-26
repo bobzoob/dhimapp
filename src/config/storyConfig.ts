@@ -8,7 +8,7 @@ export const availableStories: StoryConfig[] = [
   {
     id: "story-1",
     title: "Das Jena Netzwerk",
-    author: "This serves as a subtitle", // this can serve as a subtitle
+    author: "by Admin", // this can serve as a subtitle
     frames: [
       {
         id: "frame-0",
@@ -70,13 +70,13 @@ export const availableStories: StoryConfig[] = [
   },
   {
     id: "story-2",
-    title: "Die Schlegel Brüder",
+    title: "Example Story 2",
     author: "Author Name",
     frames: [
       {
         id: "frame-0",
-        title: "Frühe Briefe",
-        text: "Hier konzentrieren wir uns auf die frühe Konversation zwischen August und Friedrich Schlegel vor 1800.",
+        title: "Some Heading",
+        text: "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum.",
         timeRange: [1790, 1799],
         visibleLayers: ["grouping-layer"],
         highlights: [
@@ -94,8 +94,8 @@ export const availableStories: StoryConfig[] = [
       },
       {
         id: "frame-1",
-        title: "Spätere Jahre",
-        text: "Nach 1801 nimmt der Briefverkehr andere Züge an.",
+        title: "Some Other Heading",
+        text: "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. .",
         timeRange: [1800, 1802],
         visibleLayers: ["grouping-layer", "local-letter-hubs"],
         highlights: [{ layerId: "grouping-layer", featureId: "AWS-aw-09ge" }],

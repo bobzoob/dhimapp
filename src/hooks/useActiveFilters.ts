@@ -87,7 +87,7 @@ export function useActiveFilters() {
               });
             });
           }
-          // sStandard single filters (dateRange, toggles)
+          // standard single filters (dateRange, toggles)
           else {
             activeForThisLayer.push({
               id: `${layer.id}-${config.moduleId}`,
