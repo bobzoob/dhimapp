@@ -14,7 +14,7 @@ The system combines exploratory research and science communication in a "data bl
 
 ## 🌐 Live Demo
 
-**[View the live application here](https://historic-interactive-map.vercel.app/)**
+**[View the live application here](https://dhimapp.vercel.app/)**
 
 ---
 
